@@ -1,0 +1,16 @@
+branches:
+  only:
+    - master
+git:
+  depth: 1
+script:
+  - export ELASTIC_BEANSTALK_LABEL=$TRAVIS_COMMIT
+  - export ELASTIC_BEANSTALK_DESCRIPTION=$TRAVIS_COMMIT_MESSAGE
+deploy:
+  provider: elasticbeanstalk
+  access_key_id: $AWS_ACCESS_KEY_ID
+  secret_access_key: $AWS_SECRET_ACCESS_KEY
+  region: "ap-southeast-1"
+  app: "isomer-redirection"
+  env: "isomer-redirection-$TRAVIS_BRANCH"
+  bucket_name: "isomer-redirection"
