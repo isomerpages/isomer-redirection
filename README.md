@@ -1,0 +1,89 @@
+## Isomer Redirection Service
+
+This repo contains the source code for the Isomer redirection service.
+
+This README is meant for the Admins of Isomer. It covers how to configure the redirection service.
+
+### Why do we need this?
+
+There are 2 important DNS records when it comes to hosting a website:
+- an A record, which maps to an IPv4 address
+- a CNAME record, which maps to a domain name
+
+The existing Singapore government DNS service suffers from the apex domain problem - that is, the apex domain can only be an A (or AAAA) record instead of a CNAME record. This is because of the DNS specification: if a domain name (e.g. `example.gov.sg`) has a CNAME record, no other DNS records can exist on that same domain name. And this is problematic because most of the time, you would want to set MX records on the apex domain to receive emails.
+
+The implication is that the apex domain, `example.gov.sg` must map to an **IP address**. However, most CDN providers provide a **domain name instead of an IP address**, which means that the apex domain cannot be set to the CDN domain name.
+
+While there exist DNS providers that have special DNS records to overcome the apex domain problem (e.g. CNAME flattening, ALIAS, and URL records), our government policy prevents us from delegating `.gov.sg` domains to these external DNS providers.
+
+As such, we have decided to use the `www` subdomain as the canonical domain for Singapore government websites, and host a redirection service for the apex domains.
+
+### How this service works
+
+The redirection service is an NGINX server that does the following three things:
+- Redirect requests for **HTTP apex** domains to **HTTPS www** domains, e.g. `http://example.gov.sg` to `https://www.example.gov.sg`
+- Redirect requests for **HTTPS apex** domains to **HTTPS www** domains, e.g. `https://example.gov.sg` to `https://www.example.gov.sg`
+- Redirect requests for **custom HTTP** domains to **custom HTTPS** domains, e.g. `http://custom-example.gov.sg` to `https://example.gov.sg`
+
+### How to configure
+
+#### SSL redirection from https://example.gov.sg to https://www.example.gov.sg
+
+First, upload the relevant `<example.gov.sg>.crt` and `<example.gov.sg>.key` files into the `isomer-ssl` AWS S3 bucket. Please ensure that you use the same file name in the S3 bucket as in the NGINX configuration files.
+
+Next, modify the `https_www_redirects.conf` file to include the new SSL block for the `<example.gov.sg>` as shown below.
+
+```
+server {
+  listen         443 ssl http2;
+  server_name   <example.gov.sg>;
+  ssl_certificate /ssl/<example.gov.sg>.crt; 
+  ssl_certificate_key /ssl/<example.gov.sg>.key;
+  return         301 https://www.<example.gov.sg>$request_uri;
+}
+```
+
+#### SSL redirection from https://custom-example.gov.sg to https://www.example.gov.sg
+
+Occasionally, we have received requests from government agencies to redirect users from `custom-example.gov.sg` to `www.example.gov.sg`. We are able to do this via the redirection server - but with one caveat: this redirection cannot be done using HTTPS.
+
+To perform such a redirection, add the following NGINX configuration block in the `domain_redirects.conf` file as shown below.
+
+```
+if ($host ~ "(custom-example.gov.sg)|(www.custom-example.gov.sg)") {
+	return 301 https://www.example.gov.sg/;
+}
+```
+
+### How to deploy and test
+
+##### Deploying a staging version of the redirection service
+
+Make the configuration changes as described in the "How to configure" section, and merge your changes into the staging branch. We use TravisCI to deploy the NGINX configuration onto AWS Elastic Beanstalk.
+
+##### Testing the redirection service
+
+Set your local machine DNS to resolve existing website domains to the staging redirection service IP address.
+
+If you use a Mac, you need to modify the `/etc/hosts` file and add the following configuration:
+
+```
+# /etc/hosts config format
+# <Redirection IP address>  <example.gov.sg>
+
+1.1.1.1 example.gov.sg
+```
+
+After doing so, clear your browser cache and verify that the various redirections are functional.
+
+##### Deploying the config changes to production
+
+Make a PR and merge into the master branch.
+
+### Future Work
+
+- [] Building a CLI tool to upload SSL cert and key into S3 and update the NGINX config files
+- [] Automated testing of the staging redirection service
+- [] Update NGINX configuration without having to redeploy to AWS Elastic Beanstalk
+- [] Improving reliability of the service
+- [] Regular automated testing (weekly?) of the SSL configuration with Qualys SSL Labs API
