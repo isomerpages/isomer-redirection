@@ -5,4 +5,5 @@ COPY ./nginx.conf /etc/nginx/nginx.conf
 COPY ./https_www_redirects.conf /etc/nginx/https_www_redirects.conf
 COPY ./domain_redirects.conf /etc/nginx/domain_redirects.conf
 
-EXPOSE 80
+# Allow HTTP and HTTPS
+EXPOSE 80 443

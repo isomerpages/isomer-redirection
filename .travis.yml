@@ -12,5 +12,5 @@ deploy:
   secret_access_key: $AWS_SECRET_ACCESS_KEY
   region: "ap-southeast-1"
   app: "isomer-redirection"
-  env: "isomer-redirection-$TRAVIS_BRANCH"
-  bucket_name: "isomer-redirection"
+  env: "redirection-$TRAVIS_BRANCH"
+  bucket_name: "redirection-master"

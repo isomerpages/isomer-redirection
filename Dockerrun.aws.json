@@ -1,0 +1,18 @@
+{
+  "AWSEBDockerrunVersion": "1",
+  "Ports": [
+    {
+      "ContainerPort": "80"
+    },
+    {
+      "ContainerPort": "443"
+    }
+  ],
+  "Volumes": [
+    {
+      "HostDirectory": "/home/ec2-user",
+      "ContainerDirectory": "/ssl"
+    }
+  ],
+  "Logging": "/var/log/nginx/"
+}
