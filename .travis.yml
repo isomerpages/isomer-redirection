@@ -1,6 +1,7 @@
 branches:
   only:
     - master
+    - staging
 git:
   depth: 1
 script:
@@ -13,4 +14,16 @@ deploy:
   region: "ap-southeast-1"
   app: "isomer-redirection"
   env: "redirection-$TRAVIS_BRANCH"
-  bucket_name: "redirection-master"
+  bucket_name: "redirection-$TRAVIS_BRANCH"
+  on:
+    branch: master
+deploy:
+  provider: elasticbeanstalk
+  access_key_id: $AWS_ACCESS_KEY_ID
+  secret_access_key: $AWS_SECRET_ACCESS_KEY
+  region: "ap-southeast-1"
+  app: "isomer-redirection"
+  env: "redirection-$TRAVIS_BRANCH"
+  bucket_name: "redirection-$TRAVIS_BRANCH"
+  on:
+    branch: staging
