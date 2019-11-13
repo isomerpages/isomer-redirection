@@ -15,6 +15,7 @@ deploy:
     app: "isomer-redirection"
     env: "redirection-$TRAVIS_BRANCH"
     bucket_name: "redirection-$TRAVIS_BRANCH"
+    wait_until_deployed: true
     on:
       branch: master
   - provider: elasticbeanstalk
@@ -24,5 +25,6 @@ deploy:
     app: "isomer-redirection"
     env: "redirection-$TRAVIS_BRANCH"
     bucket_name: "redirection-$TRAVIS_BRANCH"
+    wait_until_deployed: true
     on:
       branch: staging
