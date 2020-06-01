@@ -1,4 +1,4 @@
-FROM nginx:1.15.3
+FROM nginx:1.18.0
 
 # Copy over nginx config files
 COPY ./nginx.conf /etc/nginx/nginx.conf
