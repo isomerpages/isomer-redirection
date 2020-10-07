@@ -10,5 +10,9 @@ COPY ./domain_redirects.conf /etc/nginx/conf.d/domain_redirects.conf
 # Remove the default nginx config
 RUN rm -f /etc/nginx/conf.d/default.conf
 
+COPY ./entrypoint.sh /scripts/entrypoint.sh
+COPY ./poll_certbot.sh /scripts/poll_certbot.sh
+
 # Allow HTTP and HTTPS
 EXPOSE 80 443
+
