@@ -7,6 +7,8 @@ COPY ./nginx.conf /etc/nginx/nginx.conf
 COPY ./https_www_redirects.conf /etc/nginx/conf.d/https_www_redirects.conf
 COPY ./domain_redirects.conf /etc/nginx/conf.d/domain_redirects.conf
 
+COPY ./letsencrypt /etc/nginx/user.conf.d
+
 # Remove the default nginx config
 RUN rm -f /etc/nginx/conf.d/default.conf
 
