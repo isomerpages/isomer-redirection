@@ -12,6 +12,10 @@
     {
       "HostDirectory": "/home/ec2-user",
       "ContainerDirectory": "/ssl"
+    },
+    {
+      "HostDirectory": "/etc/letsencrypt",
+      "ContainerDirectory": "/etc/letsencrypt"
     }
   ],
   "Logging": "/var/log/nginx/"
