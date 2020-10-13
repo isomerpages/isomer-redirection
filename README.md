@@ -25,7 +25,28 @@ The redirection service is an NGINX server that does the following three things:
 - Redirect requests for **HTTPS apex** domains to **HTTPS www** domains, e.g. `https://example.gov.sg` to `https://www.example.gov.sg`
 - Redirect requests for **custom HTTP** domains to **custom HTTPS** domains, e.g. `http://custom-example.gov.sg` to `https://example.gov.sg`
 
-### How to configure
+### How to configure - LetsEncrypt
+
+Create the following file named `<example.gov.sg>.conf` under the `letsencrypt/` directory:
+
+```
+server {
+    listen          443 ssl http2;
+    listen          [::]:443 ssl http2;
+    server_name     <example.gov.sg>;
+    ssl_certificate /etc/letsencrypt/live/<example.gov.sg>/fullchain.pem;
+    ssl_certificate_key     /etc/letsencrypt/live/<example.gov.sg>/privkey.pem;
+    return          301 https://www.<example.gov.sg>$request_uri;
+}
+
+```
+
+The files referred to in `ssl_certificate` and `ssl_certificate_key` will not exist; these will
+be created by [certbot](https://certbot.eff.org).
+
+Further information on Isomer's LetsEncrypt integration can be found [here](/LETSENCRYPT.md).
+
+### How to configure - custom certificates
 
 #### SSL redirection from https://example.gov.sg to https://www.example.gov.sg
 
@@ -36,6 +57,7 @@ Next, modify the `https_www_redirects.conf` file to include the new SSL block fo
 ```
 server {
   listen         443 ssl http2;
+  listen         [::]:443 ssl http2;
   server_name   <example.gov.sg>;
   ssl_certificate /ssl/<example.gov.sg>.crt; 
   ssl_certificate_key /ssl/<example.gov.sg>.key;
