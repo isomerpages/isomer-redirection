@@ -13,7 +13,7 @@ deploy:
     secret_access_key: $AWS_SECRET_ACCESS_KEY
     region: "ap-southeast-1"
     app: "isomer-redirection"
-    env: "redirection-$TRAVIS_BRANCH"
+    env: "redir-$TRAVIS_BRANCH"
     bucket_name: "redirection-$TRAVIS_BRANCH"
     wait_until_deployed: true
     on:
@@ -23,7 +23,7 @@ deploy:
     secret_access_key: $AWS_SECRET_ACCESS_KEY
     region: "ap-southeast-1"
     app: "isomer-redirection"
-    env: "redirection-$TRAVIS_BRANCH"
+    env: "redir-$TRAVIS_BRANCH"
     bucket_name: "redirection-$TRAVIS_BRANCH"
     wait_until_deployed: true
     on:
