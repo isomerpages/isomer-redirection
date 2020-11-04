@@ -1,0 +1,77 @@
+name: ci
+on:
+  push:
+env:
+  PRODUCTION_BRANCH: refs/heads/master
+  STAGING_BRANCH: refs/heads/staging
+  EB_APP: isomer-redirection
+  EB_ENV_PRODUCTION: redir-master
+  EB_ENV_STAGING: redir-staging
+jobs:
+  gatekeep:
+    name: Determine if Build & Deploy is needed
+    outputs:
+      proceed: ${{ steps.determine_proceed.outputs.proceed }}
+    runs-on: ubuntu-18.04
+    if: github.event_name == 'push'
+    steps:
+      - shell: python
+        id: determine_proceed
+        run: |
+          import os
+          ref = os.environ['GITHUB_REF']
+          prod = os.environ['PRODUCTION_BRANCH']
+          staging = os.environ['STAGING_BRANCH']
+          if ref == prod or ref == staging:
+            print('::set-output name=proceed::true')
+          else:
+            print('::set-output name=proceed::false')
+  deploy:
+    name: Build and deploy to EB
+    runs-on: ubuntu-18.04
+    needs: [gatekeep]
+    if: needs.gatekeep.outputs.proceed == 'true'
+    steps:
+        - uses: actions/checkout@v2
+        - name: Zip application
+          run: zip -r "deploy.zip" * -x .gitignore
+        - name: Get timestamp
+          shell: bash
+          run: echo "##[set-output name=timestamp;]$(env TZ=Asia/Singapore date '+%Y%m%d%H%M%S')"
+          id: get_timestamp
+        - name: Get Elastic Beanstalk label
+          shell: bash
+          run: echo "##[set-output name=label;]$(echo github-${GITHUB_SHA}-${TIMESTAMP})"
+          id: get_label
+          env:
+            TIMESTAMP: ${{ steps.get_timestamp.outputs.timestamp }}
+        - name: Select Elastic Beanstalk variables
+          shell: python
+          run: |
+            import os
+            branch = os.environ['GITHUB_REF']
+            production = os.environ['PRODUCTION_BRANCH']
+            staging = os.environ['STAGING_BRANCH']
+            eb_app = os.environ['EB_APP']
+            eb_env_production = os.environ['EB_ENV_PRODUCTION']
+            eb_env_staging = os.environ['EB_ENV_STAGING']
+            if branch == production:
+              print('::set-output name=eb_app::' + eb_app)
+              print('::set-output name=eb_env::' + eb_env_production)
+            elif branch == staging:
+              print('::set-output name=eb_app::' + eb_app)
+              print('::set-output name=eb_env::' + eb_env_staging)
+          id: select_eb_vars
+        - name: Deploy to EB
+          uses: einaregilsson/beanstalk-deploy@v13
+          with:
+            aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID_FOR_DEPLOYMENT }}
+            aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_DEPLOYMENT }}
+            application_name: ${{ steps.select_eb_vars.outputs.eb_app }}
+            environment_name: ${{ steps.select_eb_vars.outputs.eb_env }}
+            version_description: ${{ steps.get_label.outputs.label }}
+            version_label: ${{ steps.get_label.outputs.label }}
+            region: ap-southeast-1
+            deployment_package: deploy.zip
+            wait_for_deployment: true
+            wait_for_environment_recovery: true
