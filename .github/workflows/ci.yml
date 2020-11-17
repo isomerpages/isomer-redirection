@@ -34,7 +34,7 @@ jobs:
     steps:
         - uses: actions/checkout@v2
         - name: Zip application
-          run: zip -r "deploy.zip" * -x .gitignore
+          run: zip -r "deploy.zip" . -x ".git/*" -x ".github/*" -x ".gitignore"
         - name: Get timestamp
           shell: bash
           run: echo "##[set-output name=timestamp;]$(env TZ=Asia/Singapore date '+%Y%m%d%H%M%S')"
