@@ -2,7 +2,7 @@
 
 ### Introduction
 
-LetsEncrypt is a nonprofit Certificate Authority run by the Internet 
+Let's Encrypt is a nonprofit Certificate Authority run by the Internet 
 Security Research Group (ISRG) that provides free SSL certificates.
 
 Isomer takes advantage of this through:
@@ -43,7 +43,7 @@ which incorporates certbot. At runtime, the image runs:
   `/etc/nginx/user.conf.d/` and `/etc/nginx/conf.d/` if 
   they reference missing SSL files before enabling nginx, and;
 
-- a long-running shell script that does the following both at the start 
+- a long-running while loop that does the following both at the start 
   as well once every week:
 
   - run certbot to obtain certificates for domain names implied by
@@ -53,6 +53,16 @@ which incorporates certbot. At runtime, the image runs:
 
   - enable the config once the certificates are obtained by reloading
     nginx, through the use of `kill -HUP`.
+
+Elastic Beanstalk is sensitive to `kill -HUP` being sent to processes 
+on initialization, terminating with failure if it detects this happening.
+To mitigate this, we override the entrypoint script so that it sleeps for 
+ten seconds before spawning a poller script, consisting wholly of the 
+aforementioned while loop, so that Elastic Beanstalk is satisfied is 
+initialization is complete.
+
+See [staticfloat/docker-nginx-certbot#30](https://github.com/staticfloat/docker-nginx-certbot/issues/30) 
+for details of this quirk.
 
 The contact e-mail for these certificates is configured by the env var
 `CERTBOT_EMAIL`.
