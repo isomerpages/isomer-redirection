@@ -102,6 +102,17 @@ After doing so, clear your browser cache and verify that the various redirection
 
 Make a PR and merge into the master branch.
 
+#### Rebooting the redirection server
+
+You will occasionally want to reboot the redirection server EC2 instance - this could be to re-run the process of generating a LetsEncrypt certificate. **IMPORTANT**: You want to **reboot** the EC2 instance, and not _rebuild_ the Elastic Beanstalk environment, or [bad things can happen](https://docs.google.com/document/d/1S_oA1dNJCAxptExX-jq2IASBh7me9_mGMe1uZByJyrQ/edit#heading=h.wpjagagq76cg). 
+
+Instructions
+- Log into the AWS console with your IAM credentials.
+- Go to the _EC2 Dashboard_
+- Navigate to the _Instances_ view
+- Select the redirection server EC2 instance and click on the _Instance state_ dropdown menu on the top of the page.
+- Click on _Reboot instance_
+
 ### Future Work
 
 - [] Building a CLI tool to upload SSL cert and key into S3 and update the NGINX config files
