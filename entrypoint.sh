@@ -26,6 +26,10 @@ for f in /scripts/startup/*.sh; do
 done
 echo "Done with startup"
 
+# Delay for some time before invoking the poller, to ensure that that
+# Elastic Beanstalk has stood down any monitoring for potential failures
+# arising from sending of signals (including SIGHUP, which is sent to 
+# reload nginx after certbot is done)
 (echo "Waiting for 10 seconds before starting poller" && sleep 10 && /scripts/poll_certbot.sh $NGINX_PID) &
 POLL_PID=$!
 
