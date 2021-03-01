@@ -2,7 +2,7 @@
 
 This repo contains the source code for the Isomer redirection service.
 
-This README is meant for the Admins of Isomer. It covers how to configure the redirection service.
+This README is meant for the admins of Isomer. It covers how to configure the redirection service.
 
 ### Why do we need this?
 
