@@ -41,6 +41,20 @@ server {
 
 ```
 
+If desired, `server_name` may have multiple entries, eg, for agency.gov.sg:
+
+```
+server {
+    listen          443 ssl http2;
+    listen          [::]:443 ssl http2;
+    server_name     agency.gov.sg agency.sg www.agency.sg;
+    ssl_certificate /etc/letsencrypt/live/agency.gov.sg/fullchain.pem;
+    ssl_certificate_key     /etc/letsencrypt/live/agency.gov.sg/privkey.pem;
+    return          301 https://www.agency.gov.sg$request_uri;
+}
+
+```
+
 The files referred to in `ssl_certificate` and `ssl_certificate_key` will not exist; these will
 be created by [certbot](https://certbot.eff.org).
 

@@ -36,12 +36,12 @@ server makes sense.
 
 ### Implementation Overview
 
-Eliot Saba (@staticfloat) maintains a Docker image based on nginx,
-which incorporates certbot. At runtime, the image runs:
+Jonas Alfredsson (@JonasAlfredsson) maintains a Docker image originally written
+by Eliot Saba (@staticfloat) which incorporates certbot into the standard nginx 
+image. At runtime, the image runs:
 
-- a bootstrap script that inspects and disables/enables config at 
-  `/etc/nginx/user.conf.d/` and `/etc/nginx/conf.d/` if 
-  they reference missing SSL files before enabling nginx, and;
+- a bootstrap script that inspects and disables/enables config at `/etc/nginx/conf.d/`
+  if they reference missing SSL files before enabling nginx, and;
 
 - a long-running while loop that does the following both at the start 
   as well once every week:
@@ -51,18 +51,12 @@ which incorporates certbot. At runtime, the image runs:
     `/etc/letsencrypt/live/<domain.gov.sg>/privkey.pem` and the file
     is either missing or expired, and;
 
-  - enable the config once the certificates are obtained by reloading
-    nginx, through the use of `kill -HUP`.
+  - enable the config once the certificates are obtained by reloading nginx.
 
-Elastic Beanstalk is sensitive to `kill -HUP` being sent to processes 
-on initialization, terminating with failure if it detects this happening.
-To mitigate this, we override the entrypoint script so that it sleeps for 
-ten seconds before spawning a poller script, consisting wholly of the 
-aforementioned while loop, so that Elastic Beanstalk is satisfied is 
-initialization is complete.
-
-See [staticfloat/docker-nginx-certbot#30](https://github.com/staticfloat/docker-nginx-certbot/issues/30) 
-for details of this quirk.
+Elastic Beanstalk does not have its CloudWatch logger immediately enabled at 
+runtime, so to ensure we have everything logged into CloudWatch, we introduce
+a script into [`/docker-entrypoint.d/`](https://github.com/nginxinc/docker-nginx/tree/master/entrypoint) 
+that makes nginx sleep for ten seconds
 
 The contact e-mail for these certificates is configured by the env var
 `CERTBOT_EMAIL`.
@@ -81,4 +75,4 @@ to `https_www_redirects.conf`
 ### Further Reading
 
 Further information can be found at the relevant GitHub 
-[repository](https://github.com/staticfloat/docker-nginx-certbot).
+[repository](https://github.com/JonasAlfredsson/docker-nginx-certbot).
