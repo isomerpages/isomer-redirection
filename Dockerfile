@@ -1,4 +1,4 @@
-FROM jonasal/nginx-certbot:0.16
+FROM jonasal/nginx-certbot:1.1.0-nginx1.19.7
 
 # Copy over nginx config files
 COPY ./nginx.conf /etc/nginx/nginx.conf
