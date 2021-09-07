@@ -1,10 +1,10 @@
-## Isomer Redirection Service
+# Isomer Redirection Service
 
 This repository contains the source code for the Isomer redirection service.
 
 This README is meant for the admins of Isomer. It covers how to configure the redirection service.
 
-### Why do we need this?
+## Why do we need this?
 
 There are 2 important DNS records when it comes to hosting a website:
 - an A record, which maps to an IPv4 address
@@ -18,14 +18,14 @@ While there exist DNS providers that have special DNS records to overcome the ap
 
 As such, we have decided to use the `www` subdomain as the canonical domain for Singapore government websites, and host a redirection service for the apex domains.
 
-### How this service works
+## How this service works
 
 The redirection service is an NGINX server that does the following three things:
 - Redirect requests for **HTTP apex** domains to **HTTPS www** domains, e.g. `http://example.gov.sg` to `https://www.example.gov.sg`
 - Redirect requests for **HTTPS apex** domains to **HTTPS www** domains, e.g. `https://example.gov.sg` to `https://www.example.gov.sg`
 - Redirect requests for **custom HTTP** domains to **custom HTTPS** domains, e.g. `http://custom-example.gov.sg` to `https://example.gov.sg`
 
-### How to configure - LetsEncrypt
+## How to configure - LetsEncrypt
 
 Create the following file named `<example.gov.sg>.conf` under the `letsencrypt/` directory:
 
@@ -60,9 +60,9 @@ be created by [certbot](https://certbot.eff.org).
 
 Further information on Isomer's LetsEncrypt integration can be found [here](/LETSENCRYPT.md).
 
-### How to configure - custom certificates
+## How to configure - custom certificates
 
-#### SSL redirection from https://example.gov.sg to https://www.example.gov.sg
+### SSL redirection from https://example.gov.sg to https://www.example.gov.sg
 
 First, upload the relevant `<example.gov.sg>.crt` and `<example.gov.sg>.key` files into the `isomer-ssl` AWS S3 bucket. Please ensure that you use the same file name in the S3 bucket as in the NGINX configuration files.
 
@@ -79,11 +79,11 @@ server {
 }
 ```
 
-#### SSL redirection from https://custom-example.gov.sg to https://www.example.gov.sg
+### SSL redirection from http://custom-example.gov.sg to https://www.example.gov.sg
 
-Occasionally, we have received requests from government agencies to redirect users from `custom-example.gov.sg` to `www.example.gov.sg`. We are able to do this via the redirection server - but with one caveat: this redirection cannot be done using HTTPS.
+Occasionally, we have received requests from government agencies to redirect users from `custom-example.gov.sg` to `www.example.gov.sg`. We are able to do this via the redirection server - but with one caveat: this redirection cannot be done using HTTPS. For HTTPS redirection, we would need the agency to provide us with a SSL cert for `custom-example.gov.sg`, in which case we would follow the instructions above.
 
-To perform such a redirection, add the following NGINX configuration block in the `domain_redirects.conf` file as shown below.
+To perform such a redirection, add the following NGINX configuration block in the `http_domain_redirects.conf` file as shown below.
 
 ```
 if ($host ~ "(custom-example.gov.sg)|(www.custom-example.gov.sg)") {
@@ -91,32 +91,21 @@ if ($host ~ "(custom-example.gov.sg)|(www.custom-example.gov.sg)") {
 }
 ```
 
-### How to deploy and test
+## How to deploy and test
 
-##### Deploying a staging version of the redirection service
+### Deploying a staging version of the redirection service
 
 Make the configuration changes as described in the "How to configure" section, and merge your changes into the staging branch. We use TravisCI to deploy the NGINX configuration onto AWS Elastic Beanstalk.
 
-##### Testing the redirection service
+### Testing the redirection service
 
-Set your local machine DNS to resolve existing website domains to the staging redirection service IP address.
+You may test the redirection service using Postman by following the instructions in this document ([link](https://docs.google.com/document/d/1iPlRIbtMRkGyQgvBTakd2Wvb1HLZ3vWo-sOywhf8QqE/edit)).
 
-If you use a Mac, you need to modify the `/etc/hosts` file and add the following configuration:
-
-```
-# /etc/hosts config format
-# <Redirection IP address>  <example.gov.sg>
-
-1.1.1.1 example.gov.sg
-```
-
-After doing so, clear your browser cache and verify that the various redirections are functional.
-
-##### Deploying the config changes to production
+### Deploying the config changes to production
 
 Make a PR and merge into the master branch.
 
-#### Rebooting the redirection server
+### Rebooting the redirection server
 
 You will occasionally want to reboot the redirection server EC2 instance - this could be to re-run the process of generating a LetsEncrypt certificate. **IMPORTANT**: You want to **reboot** the EC2 instance, and not _rebuild_ the Elastic Beanstalk environment, or [bad things can happen](https://docs.google.com/document/d/1S_oA1dNJCAxptExX-jq2IASBh7me9_mGMe1uZByJyrQ/edit#heading=h.wpjagagq76cg). 
 
@@ -127,7 +116,7 @@ Instructions
 - Select the redirection server EC2 instance and click on the _Instance state_ dropdown menu on the top of the page.
 - Click on _Reboot instance_
 
-### Future Work
+## Future Work
 
 - [] Building a CLI tool to upload SSL cert and key into S3 and update the NGINX config files
 - [] Automated testing of the staging redirection service
