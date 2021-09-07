@@ -4,7 +4,7 @@ FROM jonasal/nginx-certbot:1.1.0-nginx1.19.7
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
 # Copy over redirecting configuration
-COPY ./https_www_redirects.conf /etc/nginx/conf.d/https_www_redirects.conf
+COPY ./https_www_redirects /etc/nginx/conf.d
 COPY ./domain_redirects.conf /etc/nginx/conf.d/domain_redirects.conf
 
 COPY ./letsencrypt /etc/nginx/conf.d
