@@ -5,7 +5,7 @@ COPY ./nginx.conf /etc/nginx/nginx.conf
 
 # Copy over redirecting configuration
 COPY ./https_www_redirects /etc/nginx/conf.d
-COPY ./domain_redirects.conf /etc/nginx/conf.d/domain_redirects.conf
+COPY ./http_domain_redirects.conf /etc/nginx/conf.d/http_domain_redirects.conf
 
 COPY ./letsencrypt /etc/nginx/conf.d
 
