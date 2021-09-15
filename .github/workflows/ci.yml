@@ -6,7 +6,7 @@ env:
   STAGING_BRANCH: refs/heads/staging
   EB_APP: isomer-redirection
   EB_ENV_PRODUCTION: redir-master
-  EB_ENV_STAGING: redir-staging
+  EB_ENV_STAGING: redirection-staging
 jobs:
   gatekeep:
     name: Determine if Build & Deploy is needed
