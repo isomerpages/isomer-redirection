@@ -1,0 +1,8 @@
+server {
+    listen          443 ssl http2;
+    listen          [::]:443 ssl http2;
+    server_name     csc.gov.sg;
+    ssl_certificate /etc/letsencrypt/live/csc.gov.sg/fullchain.pem;
+    ssl_certificate_key     /etc/letsencrypt/live/csc.gov.sg/privkey.pem;
+    return          301 https://www.csc.gov.sg$request_uri;
+}
