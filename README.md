@@ -1,3 +1,5 @@
+## Note: This has now been depreciated. Please refer to https://github.com/opengovsg/isomer-redirection for the latest repo
+
 # Isomer Redirection Service
 
 This repository contains the source code for the Isomer redirection service.
